@@ -1,0 +1,166 @@
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local canAirJump = true
+local cooldown = 0.2
+local airJumpEnabled = true
+local defaultSpeed = 16
+local minSpeed = 8
+local maxSpeed = 480
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "AirJumpSpeedGui"
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 50)
+frame.BackgroundTransparency = 0.3
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 12)
+frameCorner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 100)
+title.BackgroundTransparency = 0.3
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Text = "Air Jump & Speed Control"
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.Parent = frame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = title
+
+local airJumpButton = Instance.new("TextButton")
+airJumpButton.Size = UDim2.new(0.8, 0, 0, 30)
+airJumpButton.Position = UDim2.new(0.1, 0, 0.25, 0)
+airJumpButton.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
+airJumpButton.BackgroundTransparency = 0.3
+airJumpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+airJumpButton.Text = "Air Jump: ON"
+airJumpButton.Font = Enum.Font.SourceSans
+airJumpButton.TextSize = 16
+airJumpButton.Parent = frame
+
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 8)
+buttonCorner.Parent = airJumpButton
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0.8, 0, 0, 20)
+speedLabel.Position = UDim2.new(0.1, 0, 0.45, 0)
+speedLabel.BackgroundTransparency = 1
+speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedLabel.Text = "Speed (8-480):"
+speedLabel.Font = Enum.Font.SourceSans
+speedLabel.TextSize = 16
+speedLabel.Parent = frame
+
+local speedTextBox = Instance.new("TextBox")
+speedTextBox.Size = UDim2.new(0.8, 0, 0, 30)
+speedTextBox.Position = UDim2.new(0.1, 0, 0.6, 0)
+speedTextBox.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
+speedTextBox.BackgroundTransparency = 0.3
+speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedTextBox.PlaceholderText = tostring(defaultSpeed)
+speedTextBox.Text = tostring(defaultSpeed)
+speedTextBox.Font = Enum.Font.SourceSans
+speedTextBox.TextSize = 16
+speedTextBox.Parent = frame
+
+local textBoxCorner = Instance.new("UICorner")
+textBoxCorner.CornerRadius = UDim.new(0, 8)
+textBoxCorner.Parent = speedTextBox
+
+local dragging, dragInput, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+local function updateSpeed(character, speed)
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = math.clamp(speed, minSpeed, maxSpeed)
+            speedTextBox.Text = tostring(math.floor(humanoid.WalkSpeed + 0.5))
+        end
+    end
+end
+
+speedTextBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local input = tonumber(speedTextBox.Text)
+        if input then
+            updateSpeed(LocalPlayer.Character, input)
+        else
+            speedTextBox.Text = tostring(math.floor((LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed) or defaultSpeed + 0.5))
+        end
+    end
+end)
+
+local function airJump()
+    if not airJumpEnabled or not canAirJump then return end
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            canAirJump = false
+            wait(cooldown)
+            canAirJump = true
+        end
+    end
+end
+
+airJumpButton.MouseButton1Click:Connect(function()
+    airJumpEnabled = not airJumpEnabled
+    airJumpButton.Text = "Air Jump: " .. (airJumpEnabled and "ON" or "OFF")
+    airJumpButton.BackgroundColor3 = airJumpEnabled and Color3.fromRGB(0, 0, 150) or Color3.fromRGB(100, 100, 100)
+end)
+
+UserInputService.JumpRequest:Connect(airJump)
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    canAirJump = true
+    local currentSpeed = tonumber(speedTextBox.Text) or defaultSpeed
+    updateSpeed(character, currentSpeed)
+end)
+
+if LocalPlayer.Character then
+    updateSpeed(LocalPlayer.Character, defaultSpeed)
+end
