@@ -10,21 +10,16 @@ local maxSpeed = 480
 local minCooldown = 0.1
 local maxCooldown = 0.9
 local maxHealth = 100
-local isFlying = false
-local bodyVelocity = nil
-local bodyGyro = nil
-local isDamageMultiplierEnabled = false
-local damageMultiplier = 1
 
 -- Create GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "AirJumpSpeedFlyDamageGui"
+gui.Name = "AirJumpSpeedGui"
 gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 280)
-frame.Position = UDim2.new(0.5, -100, 0.5, -140)
+frame.Size = UDim2.new(0, 200, 0, 180)
+frame.Position = UDim2.new(0.5, -100, 0.5, -90)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 50)
 frame.BackgroundTransparency = 0.3
 frame.BorderSizePixel = 0
@@ -39,7 +34,7 @@ title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundColor3 = Color3.fromRGB(0, 0, 100)
 title.BackgroundTransparency = 0.3
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Text = "Air Jump, Speed, Fly & Damage"
+title.Text = "Air Jump & Speed"
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 20
 title.Parent = frame
@@ -50,7 +45,7 @@ titleCorner.Parent = title
 
 local airJumpButton = Instance.new("TextButton")
 airJumpButton.Size = UDim2.new(0.8, 0, 0, 30)
-airJumpButton.Position = UDim2.new(0.1, 0, 0.15, 0)
+airJumpButton.Position = UDim2.new(0.1, 0, 0.2, 0)
 airJumpButton.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
 airJumpButton.BackgroundTransparency = 0.3
 airJumpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -65,7 +60,7 @@ airJumpButtonCorner.Parent = airJumpButton
 
 local cooldownLabel = Instance.new("TextLabel")
 cooldownLabel.Size = UDim2.new(0.8, 0, 0, 20)
-cooldownLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
+cooldownLabel.Position = UDim2.new(0.1, 0, 0.4, 0)
 cooldownLabel.BackgroundTransparency = 1
 cooldownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 cooldownLabel.Text = "Jump Cooldown (0.1-0.9):"
@@ -75,7 +70,7 @@ cooldownLabel.Parent = frame
 
 local cooldownTextBox = Instance.new("TextBox")
 cooldownTextBox.Size = UDim2.new(0.8, 0, 0, 30)
-cooldownTextBox.Position = UDim2.new(0.1, 0, 0.4, 0)
+cooldownTextBox.Position = UDim2.new(0.1, 0, 0.5, 0)
 cooldownTextBox.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
 cooldownTextBox.BackgroundTransparency = 0.3
 cooldownTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -91,7 +86,7 @@ cooldownTextBoxCorner.Parent = cooldownTextBox
 
 local speedLabel = Instance.new("TextLabel")
 speedLabel.Size = UDim2.new(0.8, 0, 0, 20)
-speedLabel.Position = UDim2.new(0.1, 0, 0.55, 0)
+speedLabel.Position = UDim2.new(0.1, 0, 0.7, 0)
 speedLabel.BackgroundTransparency = 1
 speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 speedLabel.Text = "Speed (8-480):"
@@ -101,7 +96,7 @@ speedLabel.Parent = frame
 
 local speedTextBox = Instance.new("TextBox")
 speedTextBox.Size = UDim2.new(0.8, 0, 0, 30)
-speedTextBox.Position = UDim2.new(0.1, 0, 0.65, 0)
+speedTextBox.Position = UDim2.new(0.1, 0, 0.8, 0)
 speedTextBox.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
 speedTextBox.BackgroundTransparency = 0.3
 speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -114,36 +109,6 @@ speedTextBox.Parent = frame
 local speedTextBoxCorner = Instance.new("UICorner")
 speedTextBoxCorner.CornerRadius = UDim.new(0, 8)
 speedTextBoxCorner.Parent = speedTextBox
-
-local flyButton = Instance.new("TextButton")
-flyButton.Size = UDim2.new(0.8, 0, 0, 30)
-flyButton.Position = UDim2.new(0.1, 0, 0.75, 0)
-flyButton.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
-flyButton.BackgroundTransparency = 0.3
-flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-flyButton.Text = "Fly: OFF"
-flyButton.Font = Enum.Font.SourceSans
-flyButton.TextSize = 16
-flyButton.Parent = frame
-
-local flyButtonCorner = Instance.new("UICorner")
-flyButtonCorner.CornerRadius = UDim.new(0, 8)
-flyButtonCorner.Parent = flyButton
-
-local damageButton = Instance.new("TextButton")
-damageButton.Size = UDim2.new(0.8, 0, 0, 30)
-damageButton.Position = UDim2.new(0.1, 0, 0.9, 0)
-damageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
-damageButton.BackgroundTransparency = 0.3
-damageButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-damageButton.Text = "x2 Damage: OFF"
-damageButton.Font = Enum.Font.SourceSans
-damageButton.TextSize = 16
-damageButton.Parent = frame
-
-local damageButtonCorner = Instance.new("UICorner")
-damageButtonCorner.CornerRadius = UDim.new(0, 8)
-damageButtonCorner.Parent = damageButton
 
 -- Make GUI draggable
 local dragging, dragInput, dragStart, startPos
@@ -169,12 +134,7 @@ end)
 UserInputService.InputChanged:Connect(function(input)
     if input == dragInput and dragging then
         local delta = input.Position - dragStart
-        frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
 
@@ -213,129 +173,9 @@ cooldownTextBox.FocusLost:Connect(function(enterPressed)
     end
 end)
 
--- Flying logic
-local function enableFlying(character)
-    if not character then return end
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not rootPart then return end
-
-    -- Disable gravity
-    humanoid.PlatformStand = true
-
-    -- Create BodyVelocity for movement
-    bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-    bodyVelocity.Parent = rootPart
-
-    -- Create BodyGyro for orientation
-    bodyGyro = Instance.new("BodyGyro")
-    bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    bodyGyro.CFrame = rootPart.Cww
-    bodyGyro.Parent = rootPart
-
-    -- Handle movement input
-    local moveDirection = Vector3.new(0, 0, 0)
-    local camera = game.Workspace.CurrentCamera
-
-    local function updateFlyDirection()
-        local moveSpeed = humanoid.WalkSpeed
-        bodyVelocity.Velocity = moveDirection * moveSpeed
-        if moveDirection.Magnitude > 0 then
-            bodyGyro.CFrame = camera.CFrame
-        end
-    end
-
-    UserInputService.InputBegan:Connect(function(input)
-        if not isFlying then return end
-        if input.UserInputType == Enum.UserInputType.Keyboard then
-            local key = input.KeyCode
-            if key == Enum.KeyCode.W then
-                moveDirection = moveDirection + Vector3.new(0, 0, -1)
-            elseif key == Enum.KeyCode.S then
-                moveDirection = moveDirection + Vector3.new(0, 0, 1)
-            elseif key == Enum.KeyCode.A then
-                moveDirection = moveDirection + Vector3.new(-1, 0, 0)
-            elseif key == Enum.KeyCode.D then
-                moveDirection = moveDirection + Vector3.new(1, 0, 0)
-            elseif key == Enum.KeyCode.Space then
-                moveDirection = moveDirection + Vector3.new(0, 1, 0)
-            elseif key == Enum.KeyCode.LeftControl then
-                moveDirection = moveDirection + Vector3.new(0, -1, 0)
-            end
-            updateFlyDirection()
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if not isFlying then return end
-        if input.UserInputType == Enum.UserInputType.Keyboard then
-            local key = input.KeyCode
-            if key == Enum.KeyCode.W then
-                moveDirection = moveDirection - Vector3.new(0, 0, -1)
-            elseif key == Enum.KeyCode.S then
-                moveDirection = moveDirection - Vector3.new(0, 0, 1)
-            elseif key == Enum.KeyCode.A then
-                moveDirection = moveDirection - Vector3.new(-1, 0, 0)
-            elseif key == Enum.KeyCode.D then
-                moveDirection = moveDirection - Vector3.new(1, 0, 0)
-            elseif key == Enum.KeyCode.Space then
-                moveDirection = moveDirection - Vector3.new(0, 1, 0)
-            elseif key == Enum.KeyCode.LeftControl then
-                moveDirection = moveDirection - Vector3.new(0, -1, 0)
-            end
-            updateFlyDirection()
-        end
-    end)
-end
-
-local function disableFlying(character)
-    if not character then return end
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.PlatformStand = false
-    end
-    if bodyVelocity then
-        bodyVelocity:Destroy()
-        bodyVelocity = nil
-    end
-    if bodyGyro then
-        bodyGyro:Destroy()
-        bodyGyro = nil
-    end
-end
-
--- Toggle fly
-flyButton.MouseButton1Click:Connect(function()
-    isFlying = not isFlying
-    flyButton.Text = "Fly: " .. (isFlying and "ON" or "OFF")
-    flyButton.BackgroundColor3 = isFlying and Color3.fromRGB(0, 0, 150) or Color3.fromRGB(100, 100, 100)
-    if isFlying then
-        enableFlying(LocalPlayer.Character)
-    else
-        disableFlying(LocalPlayer.Character)
-    end
-end)
-
--- Damage multiplier logic
-local function DealDamage(targetHumanoid, baseDamage)
-    if not targetHumanoid or not targetHumanoid:IsA("Humanoid") then return end
-    local finalDamage = baseDamage * damageMultiplier
-    targetHumanoid:TakeDamage(finalDamage)
-end
-
--- Toggle damage multiplier
-damageButton.MouseButton1Click:Connect(function()
-    isDamageMultiplierEnabled = not isDamageMultiplierEnabled
-    damageMultiplier = isDamageMultiplierEnabled and 2 or 1
-    damageButton.Text = "x2 Damage: " .. (isDamageMultiplierEnabled and "ON" or "OFF")
-    damageButton.BackgroundColor3 = isDamageMultiplierEnabled and Color3.fromRGB(0, 0, 150) or Color3.fromRGB(100, 100, 100)
-end)
-
 -- Air jump logic
 local function airJump()
-    if not airJumpEnabled or not canAirJump or isFlying then return end
+    if not airJumpEnabled or not canAirJump then return end
     local character = LocalPlayer.Character
     if character then
         local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -367,11 +207,6 @@ LocalPlayer.CharacterAdded:Connect(function(character)
         humanoid.MaxHealth = maxHealth
         humanoid.Health = maxHealth
     end
-    if isFlying then
-        enableFlying(character)
-    else
-        disableFlying(character)
-    end
 end)
 
 -- Initialize speed and health
@@ -381,8 +216,5 @@ if LocalPlayer.Character then
     if humanoid then
         humanoid.MaxHealth = maxHealth
         humanoid.Health = maxHealth
-    end
-    if isFlying then
-        enableFlying(LocalPlayer.Character)
     end
 end
